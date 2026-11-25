@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DCCOR Skills Inventory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm, institutional, plain; a form people fill out once a year.
+   IDEA: a printed intake form with a rating scale ruled down the page.
+   PICTURE: the form itself, one column, the 0 to 4 scale as tappable pills.
+   COLOUR and TYPE: white ground, deep ink, one clear blue accent; Public Sans throughout.
+   LAYOUT: modest title, scale legend, sections in one column, sticky submit bar. */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0f141a);--ink:light-dark(#14202e,#e6ebf1);--mute:light-dark(#5a6878,#9aa7b6);--line:light-dark(#dfe5ec,#26313d);--soft:light-dark(#f3f6fa,#17202a);--acc:light-dark(#0b57d0,#8ab4f8);--accink:light-dark(#ffffff,#0f141a);--ok:light-dark(#11734b,#6fd3a3)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:1080px;margin:0 auto;padding:clamp(24px,4vw,48px) max(5vw,16px) 120px}
+h1{font-size:clamp(28px,4vw,40px);line-height:1.08;margin:0 0 12px;text-wrap:balance;font-weight:700}
+h2{font-size:22px;margin:0 0 4px;font-weight:700}
+h3{font-size:17px;margin:22px 0 8px;font-weight:600}
+p{margin:0 0 12px;max-width:68ch}
+.lead{color:var(--mute)}
+.tabs{display:flex;gap:8px;margin:18px 0 8px;flex-wrap:wrap}
+.tabs button{font:inherit;font-weight:600;padding:10px 16px;min-height:44px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.legend{margin:18px 0 8px;padding:16px 18px;background:var(--soft);border-radius:12px;max-width:620px}
+.legend h3{margin:0 0 10px;font-size:16px}
+.legend div{display:flex;align-items:center;gap:14px;padding:7px 0;font-size:16px;line-height:1.4;border-top:1px solid var(--line)}.legend h3+div{border-top:0}
+.legend .lnote{margin:10px 0 0;font-size:14px;color:var(--mute)}.legend strong{font-weight:700}
+.legend b{flex:none;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;background:var(--acc);color:var(--accink);font-size:17px;font-variant-numeric:tabular-nums}
+section.sec{border-top:2px solid var(--ink);margin-top:36px;padding-top:18px}
+.q{margin:16px 0}.q>label,.q>.ql{display:block;font-weight:600;margin-bottom:6px}
+input[type=text],textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+input.small{width:120px}
+.cvbox{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.upl{position:relative;overflow:hidden;display:inline-flex;align-items:center}.upl input{position:absolute;inset:0;opacity:0;cursor:pointer}.mute{color:var(--mute);font-size:15px}.sub{display:block;font-size:14px;color:var(--mute);margin:4px 0 6px}
+#cvStat a{color:var(--acc)}
+textarea{min-height:92px;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,.pill input:focus-visible+span,.chk input:focus-visible+span{outline:3px solid var(--acc);outline-offset:2px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;min-height:36px;padding:4px 0}
+.chk input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--acc);flex:none}
+.g{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.gh,.row{display:grid;grid-template-columns:minmax(0,1.25fr) 216px 64px minmax(0,1fr);gap:10px;align-items:center;padding:8px 12px}
+.gh .c{text-align:center}.prod{min-height:40px!important;padding:8px 10px!important;font-size:15px!important}
+.devl{display:none}
+.gh{background:var(--soft);font-size:13px;color:var(--mute);font-weight:600}
+.gh .sc{display:grid;grid-template-columns:repeat(5,1fr);text-align:center}
+.row{border-top:1px solid var(--line)}.row:nth-child(even){background:color-mix(in srgb,var(--soft) 45%,transparent)}
+.pills{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.pill{position:relative;cursor:pointer}.pill input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.pill span{display:flex;align-items:center;justify-content:center;height:40px;border:1px solid var(--line);border-radius:8px;font-weight:600;font-variant-numeric:tabular-nums}
+.pill input:checked+span{background:var(--acc);border-color:var(--acc);color:var(--accink)}
+.dev{display:flex;gap:6px;align-items:center;justify-content:center;font-size:14px;cursor:pointer;min-height:40px}.dev input{width:20px;height:20px;accent-color:var(--acc)}
+.bar{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:12px max(5vw,16px)}
+.bar .in{max-width:1080px;margin:0 auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;min-height:44px;padding:10px 22px;border-radius:999px;border:0;background:var(--acc);color:var(--accink);cursor:pointer}
+.btn.sec2{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.55;cursor:default}
+#status{font-size:14px;color:var(--mute)}#status.ok{color:var(--ok)}
+.note.warn{color:var(--ink);border-left:4px solid #c2410c;font-size:15px}
+.note{font-size:14px;color:var(--mute);background:var(--soft);border-radius:10px;padding:10px 12px;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--mute);font-weight:600}td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mb{height:8px;background:var(--soft);border-radius:4px;min-width:60px}.mb i{display:block;height:100%;background:var(--acc);border-radius:4px}
+details.resp{border:1px solid var(--line);border-radius:12px;margin:10px 0;padding:0 14px}
+details.resp summary{cursor:pointer;padding:12px 0;font-weight:600;min-height:44px}
+details.resp dl{margin:0 0 14px}details.resp dt{font-weight:600;font-size:14px;margin-top:10px}details.resp dd{margin:2px 0 0;white-space:pre-wrap}
+#copyOut{width:100%;min-height:200px;font:14px/1.45 ui-monospace,monospace;margin-top:10px}
+#csvOut{width:100%;min-height:120px;font:13px/1.4 ui-monospace,monospace;margin-top:10px}
+[hidden]{display:none!important}
+@media(max-width:640px){.gh{display:none}.row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px}.row>.lab,.row>.prod,.row>input[type=text]:first-child{grid-column:1/-1}.dev{justify-content:flex-start}.devl{display:inline}
+table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute)}.stack td:empty{display:none}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<div class="wrap">
+<h1>DCCOR Graduate Trainee Skills Inventory</h1>
+<p class="lead">DCCOR graduate research assistants are paid to support the center&#39;s research projects while also developing invaluable real-life experience working as part of a research team. This form helps the faculty understand the skills you bring to that work. We will use your answers to assign tasks that fit your current skills and, when project needs allow, to give you chances to build the skills you are interested in. There are no right or wrong answers, and a low rating simply tells us where you may need more guidance.</p>
+
+<div id="formView">
+<p>For each skill, choose a rating from 0 to 4 and check the "Want to develop" box for any skill you would like to build, whether or not you have experience with it. We will keep these interests in mind when tasks come up that could help you grow in those areas. Use the Comments box on each row to tell us more about what you have actually done, such as which software or tools you use, formal training you have completed, or products related to that skill (for example, a REDCap project you built, a poster, a manuscript, or a website). If you are unsure what a skill is, rate it 0. To change a rating, click a different number, or click the selected number again to clear it. Your answers are kept in this browser while you work, so you can leave and come back on the same computer.</p>
+<div class="legend" aria-label="Rating scale"><h3>Rating scale</h3><div><b>0</b><span><strong>None.</strong> No experience with this skill.</span></div><div><b>1</b><span><strong>Exposure.</strong> I have learned about it in a course or watched others do it, but I have not done it myself.</span></div><div><b>2</b><span><strong>Basic.</strong> I have done basic tasks in this area with guidance or supervision.</span></div><div><b>3</b><span><strong>Intermediate.</strong> I can handle common tasks in this area on my own and can teach others the basics. I would need help with more complex or advanced work.</span></div><div><b>4</b><span><strong>Advanced.</strong> I can handle complex tasks in this area on my own and could teach or supervise others, including on advanced aspects of the skill.</span></div><p class="lnote">Many skills include both basic and advanced parts. Choose the rating that best describes your overall level, and use Comments to tell us which parts you know well and which you have not done.</p></div>
+<form id="f" novalidate></form>
+<section class="sec"><h2>When you finish</h2><p>Click <b>Copy my answers</b> at the bottom of the page. Then paste your answers into an email to Karen Scherr (karen.scherr@duke.edu) from your Duke email account and attach your CV as a PDF. Nothing you enter on this page is saved anywhere except in your own browser, so please send the email before you close the page.</p><textarea id="copyOut" readonly hidden aria-label="Your answers"></textarea></section>
+</div>
+
+</div>
+</div>
+
+<div class="bar" id="bar"><div class="in"><button class="btn" id="submit" type="button">Copy my answers</button><span id="status" role="status">Your answers are saved in this browser as you type. When you finish, copy them and email them to Karen Scherr (karen.scherr@duke.edu).</span></div></div>
+
+<script>
+{
+const ra=["Survey and data collection platforms (for example, REDCap or Qualtrics)","Participant recruitment (for example, clinics, community settings, online panels, social media, or MyChart messages)","Identifying eligible participants from the EHR (for example, DEDUCE)","Participant management (screening, scheduling, consent and assent, follow-up, and incentives)","IRB submissions, amendments, and continuing reviews","Study tracking, data management, and project management tools","Grant support (biosketches, budgets, formatting, or submission)"];
+const qm=["Primary statistical software (please name it in Comments, for example R, SAS, Stata, SPSS, or Python)","Data cleaning, management, and reproducible code","Descriptive statistics and regression (linear and logistic)","Advanced methods (for example, longitudinal or mixed-effects models, missing data, causal inference, or machine learning)","Large secondary data analysis (for example, NHANES, ABCD, Medicaid, or EHR data); please name each dataset in Comments","Survey and scale development, including cognitive interviewing and psychometric testing","Power and sample size calculations"];
+const qt=["Qualitative analysis approaches (for example, content analysis, thematic analysis, rapid qualitative analysis, or grounded theory); please name the approaches you have used in Comments","Interview and focus group guides and data collection, including with adolescents or parents","Preparing transcripts and coding data (codebooks, team-based coding, and qualitative software such as NVivo or Dedoose)","Writing and reporting qualitative results (selecting quotations, COREQ or SRQR)","Mixed methods design and integration of qualitative and quantitative data","Human-centered design or participatory intervention development methods"];
+const wt=["Literature searching and reference management (for example, Zotero or EndNote)","Drafting manuscript sections (introduction, methods, results, or discussion); please list any publications or manuscripts in progress in Comments","Conference abstracts and oral presentations","Journal submission and responding to peer reviewers","Grant or fellowship writing","Plain language writing for patients, families, or community members"];
+const ds=["Figures and tables for manuscripts","Slides, posters, and graphics (for example, PowerPoint, Canva, Adobe, or BioRender)","Patient and family education materials or infographics","Website design and development (site builders or code)","Social media or video content for research or health communication","Responsible use of AI tools in research and writing"];
+const S=[
+ {id:"about",title:"About you",items:[{t:"text",k:"name",q:"Name"},{t:"text",k:"program",q:"Degree program and year"},{t:"text",k:"grad",q:"Expected graduation date"},{t:"single",k:"paid",q:"Are you paid through DCCOR funds?",o:["Yes","No"]},{t:"text",k:"hours",q:"If so, about how many hours per week?",small:true},{t:"single",k:"onboard",q:"Please confirm that you have completed all assigned onboarding training per the email from Julie Counts.",o:["Yes","No"],ifNo:"Please complete your onboarding training as soon as possible, and email Julie Counts to confirm once it is done."}]},
+ {id:"ra",title:"Section 1: Research administration",items:[{t:"grid",k:"ra",rows:ra}]},
+ {id:"quant",title:"Section 2: Quantitative research",items:[{t:"grid",k:"qm",rows:qm}]},
+ {id:"qual",title:"Section 3: Qualitative research",items:[{t:"grid",k:"qt",rows:qt}]},
+ {id:"wr",title:"Section 4: Writing and dissemination",items:[{t:"grid",k:"wt",rows:wt}]},
+ {id:"ds",title:"Section 5: Design, communication, and digital skills",items:[{t:"grid",k:"ds",rows:ds}]},
+ {id:"more",title:"Section 6: Other skills and experiences",items:[{t:"long",k:"g_more",q:"Are there skills or experiences you have that this form did not ask about? Please describe them here."}]},
+ {id:"goals",title:"Section 7: Goals and other information",items:[{t:"long",k:"g_top",q:"Which two or three skills from this form are you most hoping to build this year, and why?"},{t:"long",k:"g_career",q:"What are your career goals after you finish your program?"},{t:"long",k:"g_topics",q:"Which DCCOR topics or projects interest you most (for example, weight stigma, food insecurity, or clinic-community partnerships)?"},{t:"long",k:"g_sched",q:"Is there anything about your schedule, other commitments, or preferred working style that would help us plan your work?"},{t:"note",q:"Please attach your CV as a PDF to the email you send with your answers (see the instructions below)."}]}
+];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pills=n=>`<div class="pills" role="radiogroup">${[0,1,2,3,4].map(v=>`<label class="pill"><input type="radio" name="${n}_r" value="${v}" data-k="${n}_r" aria-label="Rating ${v}"><span>${v}</span></label>`).join("")}</div><label class="dev"><input type="checkbox" data-k="${n}_d" aria-label="Want to develop"><span class="devl">Want to develop</span></label><input type="text" class="prod" data-k="${n}_p" placeholder="Comments" aria-label="Comments">`;
+const gridHtml=it=>`${it.h?`<h3>${esc(it.h)}</h3>`:""}<div class="g"><div class="gh"><span>Skill</span><span class="sc"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></span><span class="c">Want to develop</span><span>Comments</span></div>${it.rows.map((r,i)=>`<div class="row"><div class="lab">${esc(r)}</div>${pills(`g_${it.k}_${i}`)}</div>`).join("")}${[1].map(j=>`<div class="row"><input type="text" data-k="g_${it.k}_o${j}_n" placeholder="Other skill (optional)" aria-label="Other skill">${pills(`g_${it.k}_o${j}`)}</div>`).join("")}</div>`;
+const qHtml=it=>{
+ if(it.t==="grid")return gridHtml(it);
+ if(it.t==="note")return `<p class="note">${esc(it.q)}</p>`;
+ if(it.t==="text")return `<div class="q"><label for="q_${it.k}">${esc(it.q)}</label><input type="text" id="q_${it.k}" data-k="${it.k}"${it.small?' class="small" inputmode="decimal"':""}></div>`;
+ if(it.t==="long")return `<div class="q"><label for="q_${it.k}">${esc(it.q)}</label><textarea id="q_${it.k}" data-k="${it.k}"></textarea></div>`;
+ const multi=it.t==="multi";
+ return `<div class="q"><span class="ql">${esc(it.q)}</span><div class="opts">${it.o.map(o=>`<label class="chk"><input type="${multi?"checkbox":"radio"}" name="${it.k}" value="${esc(o)}" data-k="${it.k}" ${multi?'data-multi="1"':""}><span>${esc(o)}</span></label>`).join("")}${it.other?`<input type="text" data-k="${it.k}_other" placeholder="Other (please describe)" aria-label="Other">`:""}</div>${it.ifNo?`<p class="note warn" data-ifno="${it.k}" hidden>${esc(it.ifNo)}</p>`:""}</div>`;
+};
+const form=document.getElementById("f");
+form.innerHTML=S.map(s=>`<section class="sec" id="s_${s.id}"><h2>${esc(s.title)}</h2>${s.items.map(qHtml).join("")}</section>`).join("");
+
+const syncNotes=()=>{form.querySelectorAll("[data-ifno]").forEach(p=>{const c=form.querySelector(`input[name="${p.dataset.ifno}"]:checked`);p.hidden=!(c&&c.value==="No")})};
+form.addEventListener("change",syncNotes);form.addEventListener("input",syncNotes);
+const collect=()=>{const a={};form.querySelectorAll("[data-k]").forEach(el=>{const k=el.dataset.k;if(el.type==="radio"){if(el.checked)a[k]=el.value}else if(el.type==="checkbox"){if(el.dataset.multi){if(el.checked)(a[k]=a[k]||[]).push(el.value)}else if(el.checked)a[k]=true}else if(el.value.trim())a[k]=el.value.trim()});return a};
+const fill=a=>{form.querySelectorAll("[data-k]").forEach(el=>{const v=a[el.dataset.k];if(el.type==="radio")el.checked=v!==undefined&&String(v)===el.value;else if(el.type==="checkbox")el.checked=el.dataset.multi?Array.isArray(v)&&v.includes(el.value):v===true;else el.value=typeof v==="string"?v:""});syncNotes()};
+// click a checked rating again to clear it
+form.addEventListener("pointerdown",e=>{const i=e.target.closest(".pill,.chk")?.querySelector("input[type=radio]");if(i)i.dataset.was=i.checked?"1":""});
+form.addEventListener("click",e=>{const i=e.target;if(i.type==="radio"&&i.dataset.was==="1"){i.checked=false;i.dataset.was="";form.dispatchEvent(new Event("input"))}});
+
+const statusEl=document.getElementById("status"),btn=document.getElementById("submit");
+const say=(t,ok)=>{statusEl.textContent=t;statusEl.className=ok?"ok":""};
+const DK="dccor-skills-draft";let t0;
+try{const d=JSON.parse(localStorage.getItem(DK)||"null");if(d)fill(d)}catch(e){}
+form.addEventListener("input",()=>{clearTimeout(t0);t0=setTimeout(()=>{try{localStorage.setItem(DK,JSON.stringify(collect()))}catch(e){}},400)});
+
+const LV=["None","Exposure","Basic","Intermediate","Advanced"];
+const toText=a=>{const out=["DCCOR Graduate Trainee Skills Inventory",""];
+ S.forEach(sec=>{const part=[];sec.items.forEach(it=>{
+  if(it.t==="note")return;
+  if(it.t==="grid"){it.rows.map((r,i)=>[r,`g_${it.k}_${i}`]).concat([[a[`g_${it.k}_o1_n`],`g_${it.k}_o1`]]).forEach(([r,p])=>{if(!r)return;const rt=a[p+"_r"],d=a[p+"_d"],c=a[p+"_p"];if(rt===undefined&&!d&&!c)return;
+   part.push(`- ${r}: ${rt===undefined?"not rated":rt+" ("+LV[+rt]+")"}${d?"; wants to develop":""}${c?"; Comments: "+c:""}`)});return}
+  let v=a[it.k];if(Array.isArray(v))v=v.join("; ");if(it.other&&a[it.k+"_other"])v=(v?v+"; ":"")+"Other: "+a[it.k+"_other"];
+  if(v)part.push(`${it.q}\n${v}`)});
+  out.push(sec.title.toUpperCase());out.push(part.length?part.join("\n"):"(no answers)");out.push("")});
+ return out.join("\n").trim()};
+const outBox=document.getElementById("copyOut");
+btn.addEventListener("click",async()=>{
+ const a=collect();
+ if(!a.name){say("Please enter your name in the first section before copying your answers.");document.getElementById("q_name").focus();return}
+ const txt=toText(a);outBox.value=txt;
+ outBox.hidden=false;outBox.scrollIntoView({block:"center"});
+ try{await Promise.race([navigator.clipboard.writeText(txt),new Promise((_,r)=>setTimeout(r,1500))]);say("Your answers are copied. Paste them into an email to Karen Scherr (karen.scherr@duke.edu) from your Duke account, and attach your CV as a PDF.",true)}
+ catch(e){outBox.focus();outBox.select();say("Your browser did not copy automatically. Your answers are selected in the box on the page; copy them and paste them into an email to Karen Scherr (karen.scherr@duke.edu).")}
+});
+}
+</script>
+</body>
+</html>
